@@ -103,7 +103,15 @@ export default function Create() {
         }),
       });
 
+      // Guard: backend may return HTML for error pages
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        console.error('Non-JSON response from POST /books, status:', response.status);
+        throw new Error(`Server error (${response.status}). Please try again.`);
+      }
+
       const data = await response.json();
+      console.log('Response status:', response.status, 'data:', JSON.stringify(data));
 
       if (!response.ok) {
         throw new Error(data.message || 'Submission failed');
@@ -122,7 +130,7 @@ export default function Create() {
     } catch (error) {
       console.error('Submission Error: ', error);
       setLoading(false);
-      Alert.alert('Error', 'An error occurred while submitting your book recommendation.');
+      Alert.alert('Error', error instanceof Error ? error.message : 'An error occurred while submitting your book recommendation.');
     }
 
   }

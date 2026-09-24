@@ -53,6 +53,13 @@ export default function Home() {
           }
         );
 
+        // Guard: backend may return HTML for error pages
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          console.warn('Non-JSON response from /books, status:', response.status);
+          return;
+        }
+
         const data = await response.json();
 
         if (response.ok) {

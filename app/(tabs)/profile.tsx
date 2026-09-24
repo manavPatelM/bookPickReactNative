@@ -30,19 +30,30 @@ export default function Profile() {
 
   const fetchUserBooks = async () => {
     try {
-      const result = await fetch(`${API_URL}/books/user`, {
+      setLoading(true);
+      const userId = user?._id || user?.id;
+      const result = await fetch(`${API_URL}/books/user/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
+
+      // Guard: backend may return HTML for unknown routes
+      const contentType = result.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        console.warn('Non-JSON response from /books/user:', result.status);
+        return;
+      }
+
       const data = await result.json();
       if (result.ok) {
-        setBooks(data.books);
+        setBooks(data.books ?? []);
+      } else {
+        console.error('Fetch user books failed:', data);
       }
 
     } catch (error) {
       console.error("Error fetching user books:", error);
-      Alert.alert("Error", "An error occurred while fetching your books.");
     } finally {
       setLoading(false);
     }
