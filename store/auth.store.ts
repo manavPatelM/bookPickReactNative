@@ -2,13 +2,13 @@ import { create } from "zustand";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from "../constants/api-url";
 
-/** Safely parse JSON — throws a readable error if backend returns HTML instead */
+/** Safely parse JSON response — throws a readable error if backend returns HTML */
 const safeJson = async (response: Response) => {
   const contentType = response.headers.get("content-type") || "";
   if (!contentType.includes("application/json")) {
     const text = await response.text();
     console.error(`Non-JSON response (${response.status}):`, text.slice(0, 300));
-    throw new Error(`Server error (${response.status}). Please try again later.`);
+    throw new Error(`Server error (${response.status}). Please check server status.`);
   }
   return response.json();
 };
